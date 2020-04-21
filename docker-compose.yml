@@ -1,0 +1,44 @@
+version: '3.7'
+
+services:
+  cells:
+    image: pydio/cells:latest
+    networks:
+      - cells
+    ports:
+      - 8080:8080
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - data:/var/cells/data
+      - logs:/var/cells/logs
+      - certs:/var/cells/certs
+      - services:/var/cells/services
+    environment:
+      - TZ=${TZ:-Asia/Tokyo}
+      - CELLS_NO_TLS=1
+      - CELLS_BIND=0.0.0.0:8080
+      - CELLS_EXTERNAL=http://localhost:8080
+    restart: on-failure
+
+  mysql:
+    image: mysql:5.7
+    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+    networks:
+      - cells
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssw0rd
+      MYSQL_DATABASE: cells
+      MYSQL_USER: pydio
+      MYSQL_PASSWORD: P@ssw0rd
+    restart: on-failure
+
+volumes:
+  data:
+  logs:
+  certs:
+  services:
+
+networks:
+  cells:
